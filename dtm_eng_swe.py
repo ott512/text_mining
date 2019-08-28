@@ -37,8 +37,6 @@ def main():
     print ("Shape of English document-to-text matrix is %s" % str(m_eng.get_shape()))
     # Dictionary
     d_eng = dtm_eng.dictionary
-    #for d in d_eng:
-    #    print (d_eng[d])
 
     # Swedish corpus
     pre_swe = pre_proc(stop_swe, stem_swe)
@@ -55,11 +53,16 @@ def main():
     print (s12.get_shape())
 
     # Max element index from each row
-    max_elem = s12.argmax(axis=1)
+    m_eng_ind = m_eng.get_shape()[1]
+    max_elem_ind = s12.argmax(axis=1)
+    max_elem = s12.max(axis=1)
+    mt = max_elem.todok()
+    mt_val = list(mt.values())
     lexicon = []
-    for i in range(len(max_elem)):
-        lexicon.append([i, d_swe[max_elem.item(i)], d_eng[i]])
-    csv_write(lexicon)
+    for i in range(m_eng_ind):
+        if mt[i] > 1:
+            lexicon.append([i, mt_val[i], d_swe[max_elem_ind.item(i)], d_eng[i]])
+    csv_write(sorted(lexicon, key=_sort_val, reverse=True))
     
 def pre_proc(stop, stemmer):
     pipeline = [lambda s: re.sub('[\d]', '', s),
@@ -77,10 +80,12 @@ def csv_write(lex):
         writer = csv.writer(cf, delimiter=',')
         writer.writerow(header)
         for w in lex:
-            row = [w[0],]
-            row.extend([s for s in w[1:]])
-            writer.writerow(row)
-        
+            writer.writerow(w)
+
+            
+def _sort_val(s):
+    return s[1]
+
 
 if __name__ == "__main__":
     main()
