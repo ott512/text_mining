@@ -9,6 +9,7 @@ from textblob import Word
 import numpy as np
 import re
 import shorttext
+import csv
 
 
 def main():
@@ -55,8 +56,10 @@ def main():
 
     # Max element index from each row
     max_elem = s12.argmax(axis=1)
+    lexicon = []
     for i in range(len(max_elem)):
-        print (d_swe[max_elem.item(i)], d_eng[i])
+        lexicon.append([i, d_swe[max_elem.item(i)], d_eng[i]])
+    csv_write(lexicon)
     
 def pre_proc(stop, stemmer):
     pipeline = [lambda s: re.sub('[\d]', '', s),
@@ -67,6 +70,17 @@ def pre_proc(stop, stemmer):
     ]
     return shorttext.utils.text_preprocessor(pipeline)
 
+
+def csv_write(lex):
+    header = ["sep=,",]
+    with open('lexicon.csv', 'w') as cf:
+        writer = csv.writer(cf, delimiter=',')
+        writer.writerow(header)
+        for w in lex:
+            row = [w[0],]
+            row.extend([s for s in w[1:]])
+            writer.writerow(row)
+        
 
 if __name__ == "__main__":
     main()
