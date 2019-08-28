@@ -50,7 +50,7 @@ def main():
     
     # S12 matrix
     s12 = m_eng.transpose() * m_swe
-    print (s12.get_shape())
+    print ("Shape of S12 matrix is %s" % str(s12.get_shape()))
 
     # Max element index from each row
     m_eng_ind = m_eng.get_shape()[1]
@@ -61,8 +61,10 @@ def main():
     lexicon = []
     for i in range(m_eng_ind):
         if mt[i] > 1:
-            lexicon.append([i, mt_val[i], d_swe[max_elem_ind.item(i)], d_eng[i]])
+            lexicon.append([i, mt_val[i], d_eng[i], d_swe[max_elem_ind.item(i)]])
+    print ("Writing lexicon to csv file")
     csv_write(sorted(lexicon, key=_sort_val, reverse=True))
+    
     
 def pre_proc(stop, stemmer):
     pipeline = [lambda s: re.sub('[\d]', '', s),
@@ -75,14 +77,14 @@ def pre_proc(stop, stemmer):
 
 
 def csv_write(lex):
-    header = ["sep=,",]
+    header = [["sep=,",]]
+    header.append(["Index", "Frequency", "English", "Swedish"])
     with open('lexicon.csv', 'w') as cf:
         writer = csv.writer(cf, delimiter=',')
-        writer.writerow(header)
-        for w in lex:
-            writer.writerow(w)
+        writer.writerows(header)
+        writer.writerows(lex)
 
-            
+
 def _sort_val(s):
     return s[1]
 
